@@ -1,9 +1,13 @@
 from flask_restx import Namespace, Resource
 from utils import request_parser
 from utils import representations
+import logging
 import requests
 from requests.exceptions import ConnectionError
 from utils import exceptions
+
+# application logger
+logger = logging.getLogger('rest_api')
 
 """
 Create a parser object locally
@@ -46,6 +50,9 @@ class VariantValidatorClass(Resource):
     @api.expect(parser, validate=True)
     def get(self, genome_build, variant_description, select_transcripts):
 
+        # Log incoming request
+        logger.info("variantvalidator.get called: genome_build=%s select_transcripts=%s", genome_build, select_transcripts)
+
         # Make a request to the current VariantValidator rest-API
         url = '/'.join(['https://rest.variantvalidator.org/VariantValidator/variantvalidator',
                         genome_build,
@@ -53,11 +60,21 @@ class VariantValidatorClass(Resource):
                         select_transcripts
                         ])
         try:
-            validation = requests.get(url)
+            validation = requests.get(url, timeout=10)
+            logger.debug("remote request to %s returned status=%s", url, getattr(validation, 'status_code', 'n/a'))
         except ConnectionError:
+            logger.exception("ConnectionError when calling remote VariantValidator: %s", url)
             raise exceptions.RemoteConnectionError('https://rest.variantvalidator.org/VariantValidator/variantvalidator currently '
                                                    'unavailable')
-        content = validation.json()
+        except requests.RequestException:
+            logger.exception("RequestException when calling remote VariantValidator: %s", url)
+            raise exceptions.RemoteConnectionError('https://rest.variantvalidator.org/VariantValidator/variantvalidator currently '
+                                                   'unavailable')
+        try:
+            content = validation.json()
+        except ValueError:
+            logger.exception("Failed to decode JSON from remote VariantValidator response (status=%s)", getattr(validation, 'status_code', 'n/a'))
+            raise exceptions.RemoteConnectionError('Invalid response from remote VariantValidator')
 
         # Collect Arguments
         args = parser.parse_args()

@@ -1,6 +1,10 @@
 from flask_restx import Namespace, Resource
 from utils import request_parser
 from utils import representations
+import logging
+
+# application logger
+logger = logging.getLogger('rest_api')
 
 
 """
@@ -29,8 +33,9 @@ class NameClass(Resource):
     @api.expect(parser, validate=True)
     def get(self, name):
 
-        # Collect Arguments
-        args = parser.parse_args()
+    # Collect Arguments
+    args = parser.parse_args()
+    logger.debug("name.get called for name=%s args=%s", name, args)
 
         # Overrides the default response route so that the standard HTML URL can return any specified format
         if args['content-type'] == 'application/json':

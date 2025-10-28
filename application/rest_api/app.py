@@ -21,15 +21,26 @@ import time
 Logging
 """
 logger = logging.getLogger('rest_api')
-# We are setting 2 types of logging. To screen at the level DEBUG
-logger.setLevel(logging.INFO)
+# Set logger to DEBUG for development
+logger.setLevel(logging.DEBUG)
 
-# We will also log to a file
-# Log with a rotating file-handler. This sets the maximum size of the log to 0.5Mb and allows two additional logs
-# The logs are then deleted and replaced in rotation
+# Clear any existing handlers (avoid duplicate logs during reloads)
+if logger.handlers:
+    logger.handlers.clear()
+
+# Improved log formatter with timestamp, level, module and line number
+formatter = logging.Formatter('%(asctime)s %(levelname)-8s [%(name)s:%(module)s:%(lineno)d] %(message)s')
+
+# Console handler (DEBUG during development)
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+ch.setFormatter(formatter)
+logger.addHandler(ch)
+
+# Rotating file handler (keep DEBUG logs during development)
 logHandler = handlers.RotatingFileHandler('rest_api.log', maxBytes=500000, backupCount=2)
-# We want to minimise the amount of information we log to capturing bugs
-logHandler.setLevel(logging.ERROR)
+logHandler.setLevel(logging.DEBUG)
+logHandler.setFormatter(formatter)
 logger.addHandler(logHandler)
 
 
@@ -42,6 +53,9 @@ parser = request_parser.parser
 # Most tutorials define application as "app", but I have had issues with this when it comes to deployment,
 # so application is recommended
 application = Flask(__name__)
+
+# Enable Flask debug mode for development
+application.debug = True
 
 api.init_app(application)
 
