@@ -4,7 +4,14 @@ Simple rest interface for VariantValidator built using Flask Flask-RESTPlus and 
 
 # Import modules
 from flask import Flask, request
-from endpoints import api, representations, exceptions, request_parser
+try:
+    # When running as a package (python -m application.rest_api.app)
+    from application.rest_api.endpoints import api
+    from application.rest_api.utils import representations, exceptions, request_parser
+except ModuleNotFoundError:
+    # When running app.py directly from application/rest_api directory
+    from endpoints import api
+    from utils import representations, exceptions, request_parser
 import logging
 from logging import handlers
 import time
