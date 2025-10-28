@@ -1,0 +1,15 @@
+
+name: variant_validator
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.12  # explicit Python version (change this line to another exact version if needed)
+  - jinja2=3.0.3  # pin Jinja2 to a 3.0.x release compatible with Flask 1.1.x
+  - itsdangerous=2.0.1  # pin to avoid ImportError with Flask 1.1.x
+  - pip
+  - pip:
+    - -r REQUIREMENTS.txt
+    - -r application/requirements.txt
+
+

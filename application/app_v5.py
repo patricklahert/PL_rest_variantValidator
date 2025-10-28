@@ -1,11 +1,12 @@
 """
-Simple rest interface for VariantValidator built using Flask Flask-RESTPlus and Swagger UI
+Simple rest interface for VariantValidator built using Flask Flask-RESTx and Swagger UI
 """
 
 # Import modules
 from flask import Flask, make_response
-from flask_restplus import Api, Resource, reqparse
+from flask_restx import Api, Resource, reqparse
 import requests
+from make_requests import MyRequests
 from dicttoxml import dicttoxml
 
 
@@ -117,10 +118,11 @@ class VariantValidatorClass(Resource):
     @api.doc(parser=parser)
     def get(self, genome_build, variant_description, select_transcripts):
 
-        # Make a request to the curent VariantValidator rest-API
-        url = '/'.join(['http://rest.variantvalidator.org/variantvalidator', genome_build, variant_description, select_transcripts])
-        validation = requests.get(url)
-        content = validation.json()
+    # Make a request to the current VariantValidator rest-API using the project's request helper
+    mr = MyRequests()
+    mr.base_url = 'http://rest.variantvalidator.org/'
+    validation = mr.variant_validator(genome_build, variant_description, select_transcripts)
+    content = validation.json()
 
         # Collect Arguements
         args = parser.parse_args()

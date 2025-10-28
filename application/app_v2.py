@@ -1,10 +1,10 @@
 """
-Simple rest interface for VariantVlidator built using Flask Flask-RESTPlus and Swagger UI
+Simple rest interface for VariantVlidator built using Flask Flask-RESTx and Swagger UI
 """
 
 # Import modules
 from flask import Flask
-from flask_restplus import Api, Resource
+from flask_restx import Api, Resource
 
 # Define the application as a Flask app with the name defined by __name__ (i.e. the name of the current module)
 # Most tutorials define application as "app", but I have had issues with this when it comes to deployment,
